@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Variables de entorno — NUNCA subir a GitHub
+.env
+.env.local
+.env.production
+
+# Build
+dist/
+build/
+
+# Caché y logs
+.vite/
+*.log
+npm-debug.log*
+
+# Editor
+.DS_Store
+.idea/
+.vscode/settings.json
+*.swp
