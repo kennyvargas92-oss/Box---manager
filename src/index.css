@@ -181,3 +181,23 @@ table tr:last-child td{border-bottom:none}
   .page-content{padding:16px}
   .big-cc-input{font-size:24px;padding:14px 16px}
 }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--dark2);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.6)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-family:var(--font-display);font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:4px;line-height:1}
+.modal-close:hover{color:var(--text);background:var(--dark3)}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+
+/* ============================================================
+   FORM ROWS
+   ============================================================ */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:600px){.form-row,.form-row.three{grid-template-columns:1fr}}
