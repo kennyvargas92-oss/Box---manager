@@ -1,5 +1,5 @@
 // src/pages/Progreso.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAtletas, useMedicionesPorAtleta, registrarMedicion } from '../hooks/useData'
 import { supabase } from '../lib/supabase'
 
@@ -119,7 +119,7 @@ function DetalleProgreso({ atleta, atletaId }) {
 
       {/* Historial de mediciones */}
       {mediciones && mediciones.length > 0 && (
-        <div className="card" style={{ padding: 0 }}>
+        <div className="card" style={{ padding: 0, marginBottom: 16 }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
             <div className="card-title">Historial de mediciones</div>
           </div>
@@ -149,6 +149,80 @@ function DetalleProgreso({ atleta, atletaId }) {
           </div>
         </div>
       )}
+
+      {/* Historial de actividad: clases y rutinas */}
+      <HistorialActividad atletaId={atletaId} />
+    </div>
+  )
+}
+
+// ── Historial de clases en vivo y rutinas del atleta ──────
+function HistorialActividad({ atletaId }) {
+  const [sesiones, setSesiones] = useState([])
+  const [loading,  setLoading]  = useState(true)
+
+  useEffect(() => {
+    async function cargar() {
+      const { data } = await supabase
+        .from('sesiones')
+        .select('*, rutinas(nombre, tipos), clases(nombre, fecha)')
+        .eq('atleta_id', atletaId)
+        .order('created_at', { ascending: false })
+        .limit(30)
+      setSesiones(data || [])
+      setLoading(false)
+    }
+    cargar()
+  }, [atletaId])
+
+  if (loading) return <div style={{ padding: 20, color: 'var(--text3)', fontSize: 13 }}>Cargando actividad...</div>
+
+  if (!sesiones.length) return (
+    <div className="empty-state">
+      <div className="empty-state-icon">▶</div>
+      <div className="empty-state-text">Sin actividad registrada aún</div>
+    </div>
+  )
+
+  return (
+    <div className="card" style={{ padding: 0 }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
+        <div className="card-title">Historial de actividad</div>
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Fecha</th><th>Tipo</th><th>Actividad</th><th>Resultado</th><th>Notas</th></tr>
+          </thead>
+          <tbody>
+            {sesiones.map(s => (
+              <tr key={s.id}>
+                <td style={{ fontSize: 12 }}>
+                  {new Date(s.fecha + 'T12:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </td>
+                <td>
+                  <span className={`badge ${s.tipo_registro === 'clase' ? 'badge-accent' : 'badge-blue'}`} style={{ fontSize: 9 }}>
+                    {s.tipo_registro === 'clase' ? 'Clase en vivo' : 'Rutina'}
+                  </span>
+                </td>
+                <td style={{ fontWeight: 500 }}>
+                  {s.tipo_registro === 'clase'
+                    ? (s.clases?.nombre || 'Clase')
+                    : (s.rutinas?.nombre || (s.rutinas?.tipos?.[0]) || 'WOD')}
+                </td>
+                <td style={{ fontSize: 12 }}>
+                  {s.tipo_registro === 'clase' && s.rondas !== null
+                    ? `${s.rondas} fases completadas`
+                    : [s.tiempo && `⏱ ${s.tiempo}`, s.rondas && `${s.rondas} rondas`, s.reps && `${s.reps} reps`].filter(Boolean).join(' · ') || '—'}
+                </td>
+                <td style={{ fontSize: 12, color: 'var(--text3)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {s.notas || '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
