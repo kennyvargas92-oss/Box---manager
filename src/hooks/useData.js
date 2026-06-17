@@ -239,8 +239,14 @@ export function useConfiguracion() {
   return useQuery(() => supabase.from('configuracion_box').select('*').single())
 }
 
-export async function guardarConfiguracion(id, datos) {
-  const { data, error } = await supabase.from('configuracion_box').update(datos).eq('id', id).select().single()
+export async function guardarConfiguracion(datos) {
+  // Obtener el id del primer registro
+  const { data: cfg } = await supabase.from('configuracion_box').select('id').single()
+  if (!cfg) {
+    const { data, error } = await supabase.from('configuracion_box').insert(datos).select().single()
+    return { data, error: error?.message }
+  }
+  const { data, error } = await supabase.from('configuracion_box').update(datos).eq('id', cfg.id).select().single()
   return { data, error: error?.message }
 }
 
@@ -251,8 +257,13 @@ export function usePoliticas() {
   return useQuery(() => supabase.from('politicas_box').select('*').single())
 }
 
-export async function guardarPoliticas(id, datos) {
-  const { data, error } = await supabase.from('politicas_box').update(datos).eq('id', id).select().single()
+export async function guardarPoliticas(datos) {
+  const { data: pol } = await supabase.from('politicas_box').select('id').single()
+  if (!pol) {
+    const { data, error } = await supabase.from('politicas_box').insert(datos).select().single()
+    return { data, error: error?.message }
+  }
+  const { data, error } = await supabase.from('politicas_box').update(datos).eq('id', pol.id).select().single()
   return { data, error: error?.message }
 }
 
